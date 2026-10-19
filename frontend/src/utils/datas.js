@@ -9,3 +9,9 @@ export function paraDataHoraLocal(valor) {
   const deslocamento = data.getTimezoneOffset() * 60000
   return new Date(data.getTime() - deslocamento).toISOString().slice(0, 16)
 }
+
+export function formatarData(valor) {
+  if (!valor) return "Não informado"
+  const [ano, mes, dia] = valor.split("-")
+  return `${dia}/${mes}/${ano}`
+}

@@ -126,20 +126,23 @@ class AgendamentoSerializer(serializers.ModelSerializer):
     tutor_nome = serializers.CharField(source="tutor.nome", read_only=True)
     tutor_telefone = serializers.CharField(source="tutor.telefone", read_only=True)
     tutor_email = serializers.EmailField(source="tutor.email", read_only=True)
+    tutor_endereco = serializers.CharField(source="tutor.endereco", read_only=True)
     tutor_cpf_mascarado = serializers.SerializerMethodField()
     pet_nome = serializers.CharField(source="pet.nome", read_only=True)
     pet_especie = serializers.CharField(source="pet.especie", read_only=True)
     pet_raca = serializers.CharField(source="pet.raca", read_only=True)
     pet_sexo = serializers.CharField(source="pet.get_sexo_display", read_only=True)
+    pet_data_nascimento = serializers.DateField(source="pet.data_nascimento", read_only=True)
+    pet_observacoes = serializers.CharField(source="pet.observacoes", read_only=True)
 
     class Meta:
         model = Agendamento
         fields = [
-            "id", "tutor", "tutor_nome", "tutor_telefone", "tutor_email", "tutor_cpf_mascarado",
-            "pet", "pet_nome", "pet_especie", "pet_raca", "pet_sexo", "data_agendamento",
+            "id", "tutor", "tutor_nome", "tutor_telefone", "tutor_email", "tutor_endereco", "tutor_cpf_mascarado",
+            "pet", "pet_nome", "pet_especie", "pet_raca", "pet_sexo", "pet_data_nascimento", "pet_observacoes", "data_agendamento",
             "motivo", "status", "observacoes", "created_at", "updated_at",
         ]
-        read_only_fields = ["id", "tutor_nome", "tutor_telefone", "tutor_email", "tutor_cpf_mascarado", "pet_nome", "pet_especie", "pet_raca", "pet_sexo", "created_at", "updated_at"]
+        read_only_fields = ["id", "tutor_nome", "tutor_telefone", "tutor_email", "tutor_endereco", "tutor_cpf_mascarado", "pet_nome", "pet_especie", "pet_raca", "pet_sexo", "pet_data_nascimento", "pet_observacoes", "created_at", "updated_at"]
 
     def get_tutor_cpf_mascarado(self, obj):
         return mascarar_cpf(obj.tutor.cpf_encrypted)

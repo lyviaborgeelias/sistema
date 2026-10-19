@@ -49,6 +49,34 @@ class AutenticacaoTests(TestCase):
         self.assertEqual(me.json()["nome"], "Pessoa Avaliadora")
         self.assertFalse(me.json()["is_admin"])
 
+    def test_superusuario_entra_pela_origem_padrao_do_frontend(self):
+        get_user_model().objects.create_superuser(username="administrador", password="Senha@2026")
+        origem = "http://127.0.0.1:5173"
+        csrf = self.client_csrf.get("/api/auth/csrf/", HTTP_ORIGIN=origem)
+        self.assertEqual(csrf.headers.get("Access-Control-Allow-Origin"), origem)
+        resposta = self.client_csrf.post(
+            "/api/auth/login/", {"username": "administrador", "password": "Senha@2026"},
+            content_type="application/json", HTTP_ORIGIN=origem,
+            HTTP_X_CSRFTOKEN=csrf.json()["csrfToken"],
+        )
+        self.assertEqual(resposta.status_code, 200, resposta.content)
+        self.assertEqual(resposta.headers.get("Access-Control-Allow-Origin"), origem)
+        self.assertEqual(resposta.headers.get("Access-Control-Allow-Credentials"), "true")
+        self.assertTrue(resposta.json()["usuario"]["is_admin"])
+        me = self.client_csrf.get("/api/auth/me/", HTTP_ORIGIN=origem)
+        self.assertEqual(me.status_code, 200)
+        self.assertTrue(me.json()["is_admin"])
+
+    def test_login_recusa_origem_nao_autorizada(self):
+        token = self.client_csrf.get("/api/auth/csrf/").json()["csrfToken"]
+        resposta = self.client_csrf.post(
+            "/api/auth/login/", {"username": "avaliador", "password": "Senha@2026"},
+            content_type="application/json", HTTP_ORIGIN="http://origem-nao-autorizada.example",
+            HTTP_X_CSRFTOKEN=token,
+        )
+        self.assertEqual(resposta.status_code, 403)
+        self.assertNotIn("Access-Control-Allow-Origin", resposta.headers)
+
     def test_papel_admin_depende_somente_de_superusuario_no_login_e_me(self):
         for staff, superusuario in ((True, False), (True, True), (False, True)):
             with self.subTest(is_staff=staff, is_superuser=superusuario):
@@ -347,6 +375,9 @@ class AgendamentoTests(TestCase):
         self.assertEqual(resposta.status_code, 400)
 
     def test_lista_ordenada_com_dados_relacionados_e_atualizacao_persistida(self):
+        self.pet.data_nascimento = "2022-03-15"
+        self.pet.observacoes = "Observação do pet"
+        self.pet.save()
         primeiro = timezone.now() + timedelta(days=1)
         segundo = timezone.now() + timedelta(days=2)
         Agendamento.objects.create(tutor=self.tutor, pet=self.pet, data_agendamento=segundo, motivo="Retorno")
@@ -359,6 +390,10 @@ class AgendamentoTests(TestCase):
         self.assertEqual(dados[0]["tutor_telefone"], "11999990000")
         self.assertEqual(dados[0]["tutor_cpf_mascarado"], "***.***.***-91")
         self.assertEqual(dados[0]["pet_nome"], "Bidu")
+        self.assertEqual(dados[0]["tutor_endereco"], "Rua A")
+        self.assertEqual(dados[0]["pet_data_nascimento"], "2022-03-15")
+        self.assertEqual(dados[0]["pet_observacoes"], "Observação do pet")
+        self.assertNotIn("senha_hash", dados[0])
         self.assertNotIn("cpf_encrypted", dados[0])
         novo_horario = timezone.now() + timedelta(days=5)
         atualizacao = self.client.patch(
@@ -453,3 +488,25 @@ class PermissoesTests(TestCase):
         for modulo, registro_id, _, _ in reversed(registros):
             with self.subTest(exclusao=modulo):
                 self.assertEqual(self.client.delete(f"/api/{modulo}/{registro_id}/").status_code, 204)
+
+
+@override_settings(CPF_ENCRYPTION_KEY="BO8mpA0QOe8JyAJPmnorrGsV5C9lJBLyD_vf-axTJeA=", CPF_LOOKUP_KEY="chave-de-teste")
+class SincronizacaoCpfTests(TestCase):
+    def test_sincroniza_indice_importado_sem_alterar_cifra(self):
+        from django.core.management import call_command
+        cpf = cpf_de_teste("000000001")
+        cifra = criptografar_cpf(cpf)
+        tutor = Tutor.objects.create(nome="Importado", cpf_encrypted=cifra, cpf_lookup_hash="antigo")
+        call_command("sincronizar_cpfs", verbosity=0)
+        call_command("sincronizar_cpfs", verbosity=0)
+        tutor.refresh_from_db()
+        self.assertEqual(tutor.cpf_encrypted, cifra)
+        self.assertEqual(tutor.cpf_lookup_hash, hash_consulta_cpf(cpf))
+
+    def test_cifra_invalida_nao_altera_nenhum_indice(self):
+        from django.core.management import call_command, CommandError
+        Tutor.objects.create(nome="A", cpf_encrypted=criptografar_cpf(cpf_de_teste("000000001")), cpf_lookup_hash="antigo-a")
+        Tutor.objects.create(nome="B", cpf_encrypted="invalido", cpf_lookup_hash="antigo-b")
+        with self.assertRaises(CommandError):
+            call_command("sincronizar_cpfs", verbosity=0)
+        self.assertEqual(set(Tutor.objects.values_list("cpf_lookup_hash", flat=True)), {"antigo-a", "antigo-b"})

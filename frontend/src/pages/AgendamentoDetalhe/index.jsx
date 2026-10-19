@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 import { ArrowLeft, CalendarDays, Mail, PawPrint, Pencil, Phone, UserRound } from 'lucide-react'
 import { Link, useParams } from 'react-router-dom'
 import api, { mensagemErro } from '../../api'
-import { formatarDataHora } from '../../utils/datas'
+import { formatarData, formatarDataHora } from '../../utils/datas'
 import './styles.css'
 
 const statusNomes = { pendente: 'Pendente', confirmado: 'Confirmado', concluido: 'Concluído', cancelado: 'Cancelado' }
@@ -34,6 +34,7 @@ export default function AgendamentoDetalhe({ usuario, mostrar }) {
         <section className="panel detail-card">
           <div className="detail-card-title"><span className="detail-icon"><UserRound className="lucide-icon" size={20} aria-hidden="true" /></span><div><span className="eyebrow">RESPONSÁVEL</span><h3>{agendamento.tutor_nome}</h3></div></div>
           <dl>
+            <div><dt>Endereço</dt><dd>{agendamento.tutor_endereco}</dd></div>
             <div><dt>CPF</dt><dd>{agendamento.tutor_cpf_mascarado}</dd></div>
             <div><dt>Telefone</dt><dd><Phone className="lucide-icon" size={15} aria-hidden="true" /> {agendamento.tutor_telefone}</dd></div>
             <div><dt>E-mail</dt><dd><Mail className="lucide-icon" size={15} aria-hidden="true" /> {agendamento.tutor_email}</dd></div>
@@ -45,6 +46,8 @@ export default function AgendamentoDetalhe({ usuario, mostrar }) {
             <div><dt>Espécie</dt><dd>{agendamento.pet_especie}</dd></div>
             <div><dt>Raça</dt><dd>{agendamento.pet_raca || 'Não informada'}</dd></div>
             <div><dt>Sexo</dt><dd>{agendamento.pet_sexo}</dd></div>
+            <div><dt>Nascimento</dt><dd>{formatarData(agendamento.pet_data_nascimento)}</dd></div>
+            <div><dt>Observações do pet</dt><dd>{agendamento.pet_observacoes || 'Nenhuma observação registrada.'}</dd></div>
           </dl>
         </section>
         <section className="panel detail-card detail-card-wide">

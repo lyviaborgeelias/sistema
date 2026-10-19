@@ -1,157 +1,365 @@
-# VetCare — Gestão Veterinária SAEP 2026
+# VetCare - Como instalar e executar
 
-Sistema de gerenciamento de tutores, pets e agendamentos. O app Django fica em `backend/backend/`, com a configuração do projeto em `backend/core/` e o `manage.py` na raiz de `backend/`. O frontend usa React, Vite, React Router, Axios, Lucide React para ícones e CSS comum. O banco principal é MySQL.
+Sistema de gestão veterinária com tutores, pets e agendamentos. O backend usa Python e Django, o frontend usa React e Vite, e os dados ficam no MySQL.
 
-## Pré-requisitos
+Este guia usa **Windows com PowerShell**. Os comandos indicam a pasta em que devem ser executados. Para usar o sistema, mantenha **dois terminais abertos**: um para o backend e outro para o frontend.
 
-- Python 3.12+, Node.js 20+ e MySQL 8+.
-- Banco com InnoDB e `utf8mb4`.
-- PowerShell no Windows ou terminal equivalente.
+## 1. O que precisa estar instalado
 
-## Banco MySQL
+| Programa | Versão / finalidade |
+|---|---|
+| Python | 3.11.5 ou superior. No Python 3.11, o pip seleciona Django 5.2 dentro das versões permitidas pelo projeto. |
+| Node.js e npm | Node.js 20 ou superior; npm acompanha a instalação do Node.js. |
+| MySQL Server | MySQL 8 ou superior, com o serviço em execução. |
+| MySQL Workbench | Opcional, mas facilita executar o script do banco. Não substitui o MySQL Server. |
+| Navegador | Para abrir a interface do sistema. |
 
-Instale o MySQL Community Server 8, inicie o serviço e configure uma conta com permissão para criar bancos e tabelas. Abra [saep_db.sql](backend/saep_db.sql) no MySQL Workbench e execute o arquivo inteiro. Ele apaga e recria `saep_bd`, cria as tabelas `tutores_tutor`, `pets_pet` e `agendamentos_agendamento`, insere três registros em cada uma e cria a view `vw_agendamentos`.
+Confira no PowerShell:
 
-Depois da importação, execute `python manage.py migrate --fake-initial`. O Django reconhece as três tabelas já criadas e cria suas tabelas internas de autenticação, sessão e permissões. O SQL contém apenas as tabelas e os dados da clínica; as contas de acesso são criadas depois pelo sistema ou pelo comando `createsuperuser`.
+```powershell
+python --version
+node --version
+npm --version
+```
 
-Se quiser iniciar sem dados de exemplo, crie somente um banco vazio e deixe o Django criar as tabelas com `migrate`:
+Se `python` não for reconhecido, tente `py --version`. Reabra o terminal depois de instalar os programas. Se necessário, habilite a opção de adicionar Python ao PATH na instalação.
+
+A instalação das bibliotecas com pip e npm normalmente exige internet. Para apresentar o projeto sem internet, instale e teste as dependências previamente no computador de destino.
+
+## 2. Localize a pasta correta
+
+Extraia o ZIP antes de executar. Abra a pasta `sistema`, que contém este README e as pastas `backend` e `frontend`.
+
+Exemplo de caminho; adapte se você extraiu em outro local:
+
+```powershell
+cd "C:\Users\SEU_USUARIO\Documents\sistema"
+dir
+```
+
+Estrutura principal:
+
+```text
+sistema/
+├── README.md
+├── backend/
+│   ├── manage.py
+│   ├── requirements.txt
+│   ├── .env.example
+│   ├── saep_db.sql
+│   ├── core/settings.py
+│   └── backend/
+└── frontend/
+    ├── package.json
+    ├── package-lock.json
+    ├── .env.example
+    └── src/
+```
+
+## 3. Prepare o MySQL
+
+### Opção A - Começar com os dados de demonstração
+
+**Atenção: `saep_db.sql` apaga e recria o banco `saep_bd`. Execute apenas na primeira instalação ou quando quiser conscientemente reiniciar todos os dados. Não o execute toda vez que abrir o sistema.**
+
+1. Inicie o serviço do MySQL Server.
+2. Abra o MySQL Workbench e conecte-se ao servidor local.
+3. Use **File > Open SQL Script** para abrir `backend/saep_db.sql`.
+4. Execute o arquivo completo, sem selecionar apenas parte dele.
+5. Atualize a lista de schemas e confira o banco `saep_bd`.
+
+O script cria três tutores, três pets, três agendamentos e a view `vw_agendamentos`. As contas de login serão criadas depois, pelo Django.
+
+### Opção B - Começar com o banco vazio
+
+Se não quiser dados de exemplo, execute somente:
 
 ```sql
 CREATE DATABASE saep_bd CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 ```
 
-## Backend
+Escolha apenas uma das opções. Em ambos os casos, continue com os passos seguintes.
 
-A partir da pasta `sistema/`, onde fica este README:
+### Confira a conexão usada pelo projeto
+
+Abra `backend/core/settings.py` e ajuste o bloco `DATABASES` para o seu MySQL:
+
+```python
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': 'saep_bd',
+        'USER': 'root',
+        'PASSWORD': 'root',
+        'HOST': 'localhost',
+        'PORT': '3306',
+    }
+}
+```
+
+`USER` e `PASSWORD` são as credenciais do **MySQL**, não as do administrador do VetCare. Se sua senha MySQL não for `root`, substitua o valor por sua senha real.
+
+**Nesta versão, a conexão MySQL é definida em `core/settings.py`. Variáveis `DB_USER` ou `DB_PASSWORD` no `.env` não são lidas pelo projeto.**
+
+## 4. Configure o backend - primeiro terminal
+
+### Entre na pasta e crie o ambiente virtual
+
+A partir da pasta `sistema`:
 
 ```powershell
 cd backend
-py -m venv env
+python -m venv env
 .\env\Scripts\Activate.ps1
-Copy-Item .env.example .env
+```
+
+Se o comando disponível no computador for `py`, use `py -3.11 -m venv env` para selecionar o Python 3.11 instalado. Depois da ativação, use `python` nos comandos seguintes.
+
+O início da linha normalmente mostrará `(env)`. Confira:
+
+```powershell
+python --version
+python -c "import sys; print(sys.executable)"
+```
+
+O executável deve estar dentro de `backend\env\Scripts`. Ao copiar o projeto para outro computador, crie um novo ambiente virtual; não reutilize a pasta `env` de outra instalação.
+
+### Instale as dependências
+
+Ainda em `backend`, com o ambiente ativado:
+
+```powershell
 python -m pip install -r requirements.txt
 ```
 
-Se a pasta `env/` já existe, apenas ative-a; não precisa recriá-la. Essa pasta é o ambiente virtual do Python. Confira a conexão MySQL em `backend/core/settings.py`. O arquivo `backend/.env` guarda as chaves do Django e da criptografia de CPF. O exemplo contém chaves exclusivas para avaliação local. Depois de importar o SQL:
+### Crie a configuração local
+
+Execute apenas se ainda não houver um `.env` configurado:
 
 ```powershell
-python manage.py makemigrations
-python manage.py migrate --fake-initial
+if (-not (Test-Path .env)) { Copy-Item .env.example .env }
+```
+
+O arquivo `.env` deve ficar **ao lado de `manage.py`**. Não renomeie para `.env.txt`.
+
+| Configuração | Para que serve |
+|---|---|
+| `SECRET_KEY` | Assinatura de dados e sessões do Django. Não pode ficar vazia. |
+| `DEBUG=True` | Modo de desenvolvimento local. |
+| `ALLOWED_HOSTS` | Hosts aceitos pelo backend. |
+| `CORS_ALLOWED_ORIGINS` | Endereços do frontend autorizados a acessar a API. |
+| `CPF_ENCRYPTION_KEY` | Chave para cifrar e decifrar os CPFs. |
+| `CPF_LOOKUP_KEY` | Chave do índice usado para detectar CPFs duplicados. |
+
+O exemplo já está preparado para execução local e leitura dos CPFs fictícios do SQL. **Preserve as chaves de uma instalação que já possui dados.** Trocar a chave de criptografia impede a leitura dos CPFs anteriores. As chaves públicas de demonstração não devem ser usadas em produção.
+
+### Execute as migrations
+
+```powershell
+python manage.py migrate
+```
+
+Esse comando:
+
+- Cria as tabelas internas de autenticação, permissões e sessões.
+- Reconhece as tabelas iniciais já criadas pelo script SQL.
+- Cria as tabelas da clínica se o banco estiver vazio.
+- Sincroniza os índices de CPF com a chave configurada, inclusive depois de uma nova importação do SQL.
+
+As migrations já estão no projeto; **não é necessário executar `makemigrations` na instalação**. A sincronização pode informar `Índices de CPF sincronizados: 0.` quando os índices já estão corretos ou não há tutores.
+
+Se houver erro de chave ou CPF duplicado, resolva a mensagem antes de continuar. Para executar apenas a sincronização:
+
+```powershell
+python manage.py sincronizar_cpfs
+```
+
+### Crie seu administrador
+
+```powershell
 python manage.py createsuperuser
+```
+
+Informe o nome de usuário, o e-mail solicitado e uma senha. A senha não aparece enquanto você digita no terminal; isso é normal.
+
+Guarde o **nome de usuário** e a senha escolhidos. São esses dados que você usará no login do sistema. Não existe uma conta administrativa padrão incluída no SQL.
+
+### Inicie o backend
+
+```powershell
 python manage.py runserver
 ```
 
-Como a migration inicial já está no projeto, `makemigrations` deve responder `No changes detected`. Se você criou apenas um banco vazio, use `python manage.py migrate` no lugar de `migrate --fake-initial`; nesse caso, as tabelas começam sem os dados de exemplo. O backend fica em `http://127.0.0.1:8000/`, e o painel administrativo em `http://127.0.0.1:8000/admin/`. O superusuário criado também pode entrar no frontend. Os CPFs do SQL usam as chaves de `backend/.env.example`.
+Deixe esse terminal aberto. O backend estará em:
 
-Em produção, configure segredos próprios para `SECRET_KEY`, `CPF_ENCRYPTION_KEY` e `CPF_LOOKUP_KEY`, `DEBUG=False`, HTTPS, hosts e origens permitidas e cookies Secure. Gere segredos com `python -c "import secrets; print(secrets.token_urlsafe(48))"` e uma chave Fernet com `python -c "from cryptography.fernet import Fernet; print(Fernet.generate_key().decode())"`.
+- API: <http://127.0.0.1:8000/api/>
+- Verificação do servidor: <http://127.0.0.1:8000/>
+- Django Admin: <http://127.0.0.1:8000/admin/>
 
-## Frontend
+A página inicial do backend retorna JSON; ela não é a interface React. Uma rota protegida pode responder 401 ou 403 sem autenticação, mesmo com o servidor funcionando.
 
-Em outro terminal, a partir da pasta `sistema/`:
+## 5. Configure o frontend - segundo terminal
+
+Abra outro PowerShell. Entre na pasta `frontend` usando o caminho em que você extraiu o projeto:
 
 ```powershell
-cd frontend
-Copy-Item .env.example .env
-npm install
+cd "C:\Users\SEU_USUARIO\Documents\sistema\frontend"
+if (-not (Test-Path .env)) { Copy-Item .env.example .env }
+npm ci
 npm run dev
 ```
 
-Abra `http://127.0.0.1:5173`. O frontend envia o cookie de sessão para o backend indicado em `VITE_API_URL`. Antes de cada POST, PUT, PATCH ou DELETE, o Axios busca um token CSRF atualizado em `/api/auth/csrf/` e o envia no cabeçalho da requisição, inclusive depois do login.
+`npm ci` instala as versões registradas no `package-lock.json`. Os ícones e as demais bibliotecas são instalados junto; não é necessário instalá-los separadamente.
 
-As telas estão separadas em `src/pages/`, cada uma com `index.jsx` e `styles.css`. A interface usa tons de marrom e mantém o layout responsivo. A organização é:
+O arquivo `frontend/.env` deve conter:
 
-```text
-frontend/
-├── public/
-└── src/
-    ├── api/index.js
-    ├── pages/
-    │   ├── Login/
-    │   ├── Cadastro/
-    │   ├── Dashboard/
-    │   ├── Tutores/
-    │   ├── TutorForm/
-    │   ├── Pets/
-    │   ├── PetForm/
-    │   ├── Agendamentos/
-    │   ├── AgendamentoForm/
-    │   └── AgendamentoDetalhe/
-    ├── utils/
-    ├── App.jsx
-    ├── App.css
-    ├── main.jsx
-    └── styles.css
+```env
+VITE_API_URL=http://127.0.0.1:8000/api
 ```
 
-`App.jsx` reúne as rotas, o menu e o controle da sessão. `App.css` guarda o estilo da estrutura compartilhada, e `styles.css` define as cores e os estilos básicos. Os estilos específicos ficam dentro da pasta de cada tela.
+Abra **<http://127.0.0.1:5173>** no navegador. Mantenha o terminal do frontend aberto também.
 
-Os ícones são importados diretamente de `lucide-react` nas telas. A dependência é instalada junto das demais com `npm install`.
+Use `127.0.0.1` tanto no endereço do frontend quanto na API, conforme o exemplo. Evite misturar `localhost` e `127.0.0.1` na mesma execução, pois o navegador trata os cookies desses hosts separadamente.
 
-## Cadastro e permissões
+## 6. Entre e use o sistema
 
-Na tela de login, clique em **Criar conta** para abrir `/cadastro`. Informe nome, usuário, e-mail, senha e confirmação. Após salvar, entre com os dados cadastrados. Se o usuário já existir, o formulário mostra **Este usuário já está cadastrado.**, inclusive quando apenas as letras maiúsculas e minúsculas forem diferentes.
+Faça login com o usuário criado por `createsuperuser`.
 
-| Conta | Permissões |
+| Tipo de conta | Permissões |
 |---|---|
-| Criada pela tela de cadastro | Consultar dashboard, tutores, pets e agendamentos, pesquisar e abrir detalhes. |
-| Superusuário criado com `python manage.py createsuperuser` | Consultar, cadastrar, editar e excluir registros e acessar o Django Admin. |
+| Administrador criado pelo terminal | Consultar, adicionar, editar e excluir tutores, pets e agendamentos. |
+| Conta criada pela tela **Criar conta** | Somente visualizar, pesquisar e abrir detalhes. |
 
-O cadastro público nunca concede `is_staff` ou `is_superuser`. O backend exige superusuário para qualquer alteração nos módulos, mesmo em chamadas diretas à API. A interface esconde as ações de gestão e bloqueia as URLs dos formulários para contas de consulta. O perfil aparece no cabeçalho e é recuperado da sessão no backend.
+O cadastro pela interface não concede privilégios administrativos. As restrições também são aplicadas na API.
 
-O endpoint de cadastro é `POST /api/auth/register/`, com proteção CSRF e os campos `nome`, `username`, `email`, `password` e `password_confirm`. As senhas são validadas e armazenadas com hash do Django. O cadastro não inicia uma sessão automaticamente.
+A ordem para cadastrar dados é **tutor > pet vinculado ao tutor > agendamento do pet**. Tutores e pets com registros vinculados não podem ser excluídos enquanto esses vínculos existirem. A sessão expira após 30 minutos sem requisições.
 
-## Dados iniciais
+A senha armazenada no cadastro de um tutor é um dado desse registro; ela não cria uma conta de acesso ao painel. Use sempre uma conta do sistema para entrar.
 
-O arquivo [saep_db.sql](backend/saep_db.sql) cria e popula as tabelas da clínica com três tutores, três pets e três agendamentos. A importação apaga os dados anteriores de `saep_bd`; faça-a antes de cadastrar suas contas de acesso. Depois de executar `migrate --fake-initial`, use `python manage.py createsuperuser` para escolher o usuário e a senha da conta administrativa. Os usuários comuns podem usar **Criar conta** no frontend e terão acesso somente para visualização.
+## 7. Como abrir o projeto nos próximos dias
 
-A senha dos tutores fictícios é `1234`, armazenada como hash. Essa credencial de tutor não dá acesso ao painel. Para entrar e gerenciar os dados, use o superusuário criado por você. Os CPFs do SQL estão criptografados com as chaves de demonstração de `.env.example`; mantenha essas chaves na configuração local para ler os registros importados.
+Não reimporte o SQL, não copie o `.env` novamente e não recrie o administrador.
 
-Para criar, popular e iniciar, siga esta ordem:
-
-1. Execute `saep_db.sql` no MySQL Workbench.
-2. No backend, execute `python manage.py migrate --fake-initial`.
-3. Crie sua conta administrativa com `python manage.py createsuperuser`.
-4. Inicie o backend com `python manage.py runserver`.
-
-## Testes
-
-O banco final é MySQL. Para executar os testes isolados com SQLite somente na suíte, no terminal do backend:
+**Terminal 1 - backend:**
 
 ```powershell
-$env:TEST_SQLITE = "1"
-$env:SECRET_KEY = "chave-local-de-testes"
-$env:CPF_ENCRYPTION_KEY = "BO8mpA0QOe8JyAJPmnorrGsV5C9lJBLyD_vf-axTJeA="
-$env:CPF_LOOKUP_KEY = "chave-local-de-testes"
-$env:DEBUG = "True"
-python manage.py test
+cd "C:\Users\SEU_USUARIO\Documents\sistema\backend"
+.\env\Scripts\Activate.ps1
+python manage.py runserver
+```
+
+**Terminal 2 - frontend:**
+
+```powershell
+cd "C:\Users\SEU_USUARIO\Documents\sistema\frontend"
+npm run dev
+```
+
+Verifique se o MySQL está ativo e abra <http://127.0.0.1:5173>. Para parar os servidores, pressione **Ctrl+C** em cada terminal.
+
+Se receber uma versão atualizada do projeto com novas migrations, execute `python manage.py migrate` antes de iniciar o backend.
+
+## 8. Solução dos problemas mais comuns
+
+### PowerShell bloqueia a ativação do ambiente virtual
+
+É possível usar diretamente o Python do ambiente, sem mudar a política do PowerShell:
+
+```powershell
+.\env\Scripts\python.exe -m pip install -r requirements.txt
+.\env\Scripts\python.exe manage.py migrate
+.\env\Scripts\python.exe manage.py runserver
+```
+
+Use esse mesmo prefixo para os outros comandos Python. Se o PowerShell bloquear `npm.ps1`, execute `npm.cmd ci` e `npm.cmd run dev`.
+
+### Erro de conexão ou acesso negado no MySQL
+
+Confira o serviço MySQL e os campos `USER`, `PASSWORD`, `HOST` e `PORT` em `backend/core/settings.py`. Se aparecer `Unknown database 'saep_bd'`, volte ao passo 3 para criar o banco.
+
+### Erro 500 ou `The SECRET_KEY setting must not be empty`
+
+Confirme que `backend/.env` existe, está ao lado de `manage.py` e contém `SECRET_KEY`. Confira a exceção no terminal do backend. Depois de alterar `.env`, pare e reinicie o servidor; não basta atualizar o navegador.
+
+### CORS, CSRF ou `Failed to load resource`
+
+Primeiro verifique se o backend está rodando e se há uma exceção no terminal. No `backend/.env`, confira:
+
+```env
+DEBUG=True
+ALLOWED_HOSTS=localhost,127.0.0.1
+CORS_ALLOWED_ORIGINS=http://127.0.0.1:5173,http://localhost:5173
+```
+
+Confira também `VITE_API_URL` no frontend. Reinicie ambos os servidores após alterar os arquivos `.env` e atualize a página com **Ctrl+F5**. Não desative a proteção CSRF.
+
+### O frontend abriu na porta 5174
+
+A porta 5173 pode estar ocupada por outra execução. Encerre a execução anterior e inicie novamente. Caso escolha outra porta, inclua a origem completa correspondente em `CORS_ALLOWED_ORIGINS` e reinicie o backend.
+
+### `Table 'tutores_tutor' already exists`
+
+Confirme que está executando `manage.py` desta versão, dentro da pasta `backend`. O comando `python manage.py migrate` do projeto reconhece as tabelas iniciais importadas. Não apague o banco nem use `--fake` indiscriminadamente para contornar o erro.
+
+### Erro de CPF ao cadastrar ou migrar
+
+Confira `CPF_ENCRYPTION_KEY` e `CPF_LOOKUP_KEY` no `.env`. Para os dados fictícios importados, a chave de criptografia deve ser a do `.env.example`. Preserve as chaves de dados próprios já cadastrados. Depois de corrigir a configuração, execute `python manage.py sincronizar_cpfs`.
+
+### Usuário ou senha inválidos
+
+Entre com o **nome de usuário**, não com o e-mail ou o nome do tutor. Para redefinir a senha de uma conta existente, no backend:
+
+```powershell
+python manage.py changepassword SEU_USUARIO
+```
+
+Se a conta não existe, crie-a com `createsuperuser` para acesso administrativo ou pela tela de cadastro para consulta.
+
+### Não aparecem botões de adicionar, editar e excluir
+
+Confira se você entrou com o administrador criado por `createsuperuser`. Para contas comuns, ocultar esses botões é o comportamento esperado.
+
+## 9. Verificações e testes opcionais
+
+No terminal do backend com o ambiente ativado e o `.env` configurado:
+
+```powershell
+python manage.py check
 python manage.py makemigrations --check --dry-run
 ```
 
-A suíte cobre cadastro de usuário, duplicidade, privilégios, sessão, CSRF, CRUD, proteção de CPF e senha, vínculos e agendamentos. Para verificar o frontend, execute `npm run build` em `frontend/`.
-
-## Documentação e estrutura
-
-- [Documentação técnica](docs/documentacao.md) e [PDF](docs/documentacao.pdf).
-- [DER](docs/der.png) e [fonte Mermaid](docs/der.mmd).
-- [Checklist de critérios](docs/CHECKLIST_SAEP.md).
-- `backend/backend/`: único app Django, com modelos, serializers, views, URLs, testes e migrations. O identificador interno `sistema` foi mantido para preservar o histórico das migrations.
-- `backend/core/`: configurações, URLs principais, ASGI e WSGI. `manage.py`, `.env.example` e `requirements.txt` ficam diretamente em `backend/`; a pasta `env/` é local e não entra na entrega.
-- `frontend/`: telas React em `src/pages/NomeDaTela/index.jsx`, com seu próprio `styles.css`, e integração HTTP em `src/api/index.js`.
-- `backend/saep_db.sql`: criação do banco, das três tabelas da clínica, dos dados de demonstração e da view.
-
-Para regenerar o PDF e o DER, a partir da raiz:
+Para executar a suíte em um banco SQLite isolado, sem usar o MySQL da aplicação:
 
 ```powershell
-cd sistema
-pip install -r docs/requirements.txt
-python docs/gerar_der.py
-python docs/gerar_documentacao.py
+$env:TEST_SQLITE = "1"
+try {
+    python manage.py test backend
+    python test_migrate.py
+} finally {
+    Remove-Item Env:TEST_SQLITE -ErrorAction SilentlyContinue
+}
 ```
 
-## Problemas comuns
+Não inicie o servidor com `TEST_SQLITE=1`; essa opção é exclusiva dos testes. O bloco acima remove a variável ao terminar.
 
-- **Erro 1050: `Table 'tutores_tutor' already exists` ao executar `migrate`:** as tabelas já foram criadas pelo SQL. No terminal do backend, execute `python manage.py migrate --fake-initial` uma vez e depois `python manage.py runserver`. Esse comando registra a migration inicial e mantém os registros existentes. Nas próximas atualizações, use `python manage.py migrate` normalmente.
-- **Falha de conexão MySQL:** confirme que o serviço está ativo e que `DB_HOST`, `DB_PORT`, `DB_USER` e `DB_PASSWORD` estão corretos no `.env` do backend.
-- **Erro de CPF após importar SQL:** use as chaves locais de `.env.example`; trocar a chave de criptografia depois da importação impede a leitura dos CPFs já cifrados.
-- **Falha CSRF no navegador:** use o endereço configurado em `CORS_ALLOWED_ORIGINS` e `VITE_API_URL`; mantenha frontend e backend nas origens previstas.
-- **Mensagem `CSRF token from the 'X-Csrftoken' HTTP header incorrect` após login:** atualize a página para carregar a versão corrigida do frontend e entre novamente. A renovação do token ocorre automaticamente nas requisições de escrita; a proteção CSRF deve continuar habilitada.
+Com o backend local rodando em `127.0.0.1:8000` e o MySQL configurado, também é possível executar:
+
+```powershell
+python tools/check_http_endpoints.py
+```
+
+Esse teste HTTP cria contas e registros temporários, verifica as rotas e remove os registros que criou ao final. Execute apenas no ambiente local de demonstração. O relatório é salvo em `http-endpoints-report.json` na raiz do projeto.
+
+Para validar a compilação do frontend, dentro de `frontend`:
+
+```powershell
+npm run build
+```
+
+## 10. Entrega e configuração em outro computador
+
+O pacote SAEP contém `documentacao.pdf`, `der.pdf`, `saep_db.sql` e a pasta `sistema`. Os arquivos `.env.example` acompanham o código; os `.env` pessoais, `env` e `node_modules` não acompanham a entrega.
+
+Em outro computador, extraia o pacote e siga este guia desde o início. O SQL da raiz do pacote é uma cópia do SQL em `sistema/backend`; execute apenas uma dessas cópias.
+
+Este guia é para desenvolvimento e avaliação local. Para produção, use configuração própria de segredos, HTTPS, `DEBUG=False` e servidor adequado; não publique as chaves de demonstração nem use `runserver` como servidor de produção.
