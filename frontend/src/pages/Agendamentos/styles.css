@@ -1,0 +1,27 @@
+.agendamentos-page .compact-cell {
+    display: grid;
+    gap: 4px;
+}
+
+.agendamentos-page .compact-cell strong {
+    color: var(--color-text);
+    font-size: 12px;
+}
+
+.agendamentos-page .compact-cell small {
+    color: var(--color-muted);
+    font-size: 10px;
+}
+
+.agendamentos-page .date-cell {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    white-space: nowrap;
+    color: var(--color-primary);
+}
+
+.agendamentos-page .date-cell strong {
+    color: var(--color-text);
+    font-size: 10px;
+}

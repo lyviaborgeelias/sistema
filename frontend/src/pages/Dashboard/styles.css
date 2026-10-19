@@ -1,0 +1,296 @@
+
+
+.dashboard-page .welcome-banner {
+    min-height: 181px;
+    overflow: hidden;
+    position: relative;
+    border-radius: 17px;
+    display: flex;
+    align-items: center;
+    padding: 29px 34px;
+    background: linear-gradient(110deg, var(--color-primary-dark) 0%, var(--color-primary) 100%);
+    color: white;
+}
+
+.dashboard-page .welcome-banner h1 {
+    font: 800 27px Arial, sans-serif;
+    margin: 10px 0 5px;
+    letter-spacing: -.8px;
+}
+
+.dashboard-page .welcome-banner h1 .lucide-icon {
+    margin-left: 4px;
+}
+
+.dashboard-page .welcome-banner p {
+    margin: 0;
+    color: #f0dccb;
+    font-size: 13px;
+}
+
+.dashboard-page .welcome-decoration {
+    position: absolute;
+    right: 72px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 108px;
+    height: 108px;
+    border-radius: 50%;
+    background: rgba(235, 202, 164, .18);
+    display: grid;
+    place-items: center;
+    color: #ffeddb;
+}
+
+.dashboard-page .welcome-circle {
+    position: absolute;
+    border: 1px solid rgba(255, 239, 219, .2);
+    border-radius: 50%;
+}
+
+.dashboard-page .circle-one {
+    width: 155px;
+    height: 155px;
+    right: -22px;
+    top: -23px;
+}
+
+.dashboard-page .circle-two {
+    width: 205px;
+    height: 205px;
+    right: -47px;
+    top: -49px;
+}
+
+.dashboard-page .summary-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 16px;
+}
+
+.dashboard-page .summary-card {
+    min-height: 168px;
+    position: relative;
+    background: white;
+    border: 1px solid var(--color-border);
+    border-radius: 15px;
+    padding: 19px 20px 15px;
+    display: grid;
+    grid-template-columns: 40px 1fr;
+    grid-template-rows: auto 1fr auto;
+    align-items: center;
+    gap: 2px 12px;
+    box-shadow: 0 8px 22px rgba(91, 57, 41, .035);
+    transition: .18s ease;
+}
+
+.dashboard-page .summary-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 14px 28px rgba(91, 57, 41, .08);
+}
+
+.dashboard-page .summary-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 12px;
+    display: grid;
+    place-items: center;
+    grid-row: 1/3;
+}
+
+.dashboard-page .icon-brown {
+    background: var(--color-soft);
+    color: var(--color-primary);
+}
+
+.dashboard-page .icon-sand {
+    background: #f3eadc;
+    color: #a27848;
+}
+
+.dashboard-page .icon-caramel {
+    background: #f7ebdf;
+    color: #b77950;
+}
+
+.dashboard-page .summary-title {
+    color: var(--color-secondary-text);
+    font-size: 11px;
+    font-weight: 600;
+}
+
+.dashboard-page .summary-card>strong {
+    font: 800 29px Arial, sans-serif;
+    color: var(--color-text);
+    align-self: start;
+}
+
+.dashboard-page .summary-link {
+    grid-column: 1/3;
+    border-top: 1px solid var(--color-border);
+    padding-top: 11px;
+    margin-top: 5px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    color: var(--color-primary);
+    font-size: 10px;
+    font-weight: 700;
+}
+
+.dashboard-page .upcoming-panel {
+    padding: 21px 23px 9px;
+}
+
+.dashboard-page .panel-heading {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding-bottom: 15px;
+    border-bottom: 1px solid var(--color-border);
+}
+
+.dashboard-page .panel-heading h3 {
+    margin: 4px 0 0;
+    font: 700 16px Arial, sans-serif;
+}
+
+.dashboard-page .text-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    color: var(--color-primary);
+    font-size: 11px;
+    font-weight: 700;
+}
+
+.dashboard-page .upcoming-row {
+    display: grid;
+    grid-template-columns: 39px minmax(130px, 1fr) minmax(125px, auto) auto;
+    align-items: center;
+    gap: 12px;
+    padding: 14px 0;
+    border-bottom: 1px solid var(--color-border);
+}
+
+.dashboard-page .upcoming-row:last-child {
+    border-bottom: 0;
+}
+
+.dashboard-page .appointment-date-icon {
+    width: 38px;
+    height: 38px;
+    display: grid;
+    place-items: center;
+    border-radius: 11px;
+    background: #f5ede5;
+    color: var(--color-primary);
+}
+
+.dashboard-page .upcoming-main {
+    display: grid;
+    gap: 4px;
+}
+
+.dashboard-page .upcoming-main strong {
+    color: var(--color-text);
+    font-size: 12px;
+}
+
+.dashboard-page .upcoming-main span {
+    color: var(--color-muted);
+    font-size: 10px;
+}
+
+.dashboard-page .upcoming-time {
+    color: var(--color-secondary-text);
+    font-size: 11px;
+    font-weight: 600;
+}
+
+.dashboard-page .dashboard-empty {
+    min-height: 104px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    color: var(--color-muted);
+    font-size: 12px;
+}
+
+.dashboard-page .dashboard-empty .lucide-icon {
+    color: var(--color-secondary-text);
+}
+
+.dashboard-page .dashboard-empty a {
+    color: var(--color-primary);
+    font-weight: 700;
+}
+
+@media (max-width: 1050px) {
+
+    .dashboard-page .upcoming-row {
+        grid-template-columns: 39px 1fr auto auto;
+    }
+}
+
+@media (max-width: 760px) {
+
+    .dashboard-page .summary-grid {
+        grid-template-columns: 1fr;
+        gap: 10px;
+    }
+
+    .dashboard-page .summary-card {
+        min-height: 125px;
+        grid-template-columns: 40px 1fr;
+    }
+
+    .dashboard-page .welcome-banner {
+        min-height: 160px;
+        padding: 23px 20px;
+    }
+
+    .dashboard-page .welcome-banner h1 {
+        font-size: 22px;
+    }
+
+    .dashboard-page .welcome-banner p {
+        max-width: 220px;
+        line-height: 1.5;
+    }
+
+    .dashboard-page .welcome-decoration {
+        opacity: .4;
+        right: -8px;
+    }
+
+    .dashboard-page .upcoming-row {
+        grid-template-columns: 39px minmax(0, 1fr) auto;
+    }
+
+    .dashboard-page .upcoming-time {
+        grid-column: 2;
+        grid-row: 2;
+    }
+
+    .dashboard-page .upcoming-row .status-badge {
+        grid-column: 3;
+        grid-row: 1/3;
+    }
+}
+
+@media (max-width: 420px) {
+
+    .dashboard-page .welcome-banner h1 {
+        font-size: 20px;
+    }
+
+    .dashboard-page .welcome-decoration {
+        right: -40px;
+    }
+
+    .dashboard-page .upcoming-panel {
+        padding-left: 14px;
+        padding-right: 14px;
+    }
+}
