@@ -1,4 +1,4 @@
--- VetCare SAEP 2026 - criacao do banco do zero no MySQL.
+-- AgroPet SAEP 2026 - criacao do banco do zero no MySQL.
 -- ATENCAO: este arquivo APAGA e recria o banco saep_bd.
 -- Cria apenas as tabelas da clinica, com tres registros em cada.
 -- Depois, no backend: python manage.py migrate --fake-initial

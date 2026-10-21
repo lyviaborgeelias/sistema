@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { Link, Navigate, useNavigate } from 'react-router-dom'
-import { ArrowLeft, HeartPulse, UserPlus } from 'lucide-react'
+import { ArrowLeft, UserPlus } from 'lucide-react'
 import api, { mensagemErro } from '../../api'
 import './styles.css'
 
@@ -49,14 +49,14 @@ export default function Cadastro({ usuario }) {
   return (
     <div className="cadastro-page">
       <section className="cadastro-brand-panel">
-        <div className="cadastro-brand"><span className="brand-mark"><HeartPulse className="lucide-icon" size={24} aria-hidden="true" /></span><span><strong>VetCare</strong><small>Gestão veterinária</small></span></div>
+        <div className="cadastro-brand"><span className="brand-mark brand-mark-logo"><img className="brand-logo" src="/agropet-logo.png" alt="" aria-hidden="true" /></span><span><strong>AgroPet</strong><small>Gestão veterinária</small></span></div>
         <div className="cadastro-message"><span className="eyebrow eyebrow-light">ACOMPANHE A CLÍNICA</span><h1>Crie sua conta.<br /><em>Tenha tudo por perto.</em></h1><p>Consulte os tutores, pets e agendamentos em um só lugar.</p></div>
         <div className="cadastro-panel-footer">Gestão de clínica veterinária · SAEP 2026</div>
       </section>
       <section className="cadastro-form-panel">
         <div className="cadastro-form-wrap">
           <Link className="cadastro-back" to="/login"><ArrowLeft className="lucide-icon" size={14} aria-hidden="true" /> Voltar para o login</Link>
-          <span className="eyebrow">SEU ACESSO À VETCARE</span>
+          <span className="eyebrow">SEU ACESSO AO AGROPET</span>
           <h2>Criar conta</h2>
           <p className="cadastro-description">Preencha os dados para começar.</p>
           <p className="cadastro-info">Sua conta terá acesso somente para visualização dos cadastros e agendamentos.</p>

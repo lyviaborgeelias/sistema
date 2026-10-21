@@ -237,9 +237,10 @@
         padding: 20px 24px;
     }
 
-    .login-page .login-brand .brand-mark {
-        width: 36px;
-        height: 36px;
+    .login-page .login-brand .brand-mark-logo {
+        width: 48px;
+        height: 48px;
+        flex-basis: 48px;
     }
 
     .login-page .login-brand strong {

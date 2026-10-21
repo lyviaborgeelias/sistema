@@ -1,4 +1,4 @@
-# VetCare - Como instalar e executar
+# AgroPet - Como instalar e executar
 
 Sistema de gestão veterinária com tutores, pets e agendamentos. O backend usa Python e Django, o frontend usa React e Vite, e os dados ficam no MySQL.
 
@@ -97,7 +97,7 @@ DATABASES = {
 }
 ```
 
-`USER` e `PASSWORD` são as credenciais do **MySQL**, não as do administrador do VetCare. Se sua senha MySQL não for `root`, substitua o valor por sua senha real.
+`USER` e `PASSWORD` são as credenciais do **MySQL**, não as do administrador do AgroPet. Se sua senha MySQL não for `root`, substitua o valor por sua senha real.
 
 **Nesta versão, a conexão MySQL é definida em `core/settings.py`. Variáveis `DB_USER` ou `DB_PASSWORD` no `.env` não são lidas pelo projeto.**
 

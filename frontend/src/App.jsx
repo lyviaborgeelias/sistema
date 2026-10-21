@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { Navigate, NavLink, Outlet, Route, Routes, useLocation, useNavigate } from 'react-router-dom'
-import { CalendarDays, CircleAlert, CircleCheck, HeartHandshake, HeartPulse, LayoutDashboard, LogOut, Menu, PawPrint, UsersRound, X } from 'lucide-react'
+import { CalendarDays, CircleAlert, CircleCheck, HeartHandshake, LayoutDashboard, LogOut, Menu, PawPrint, UsersRound, X } from 'lucide-react'
 import api, { mensagemErro } from './api'
 import Login from './pages/Login'
 import Cadastro from './pages/Cadastro'
@@ -124,8 +124,8 @@ export default function App() {
             {menuAberto && <button className="mobile-backdrop" onClick={() => setMenuAberto(false)} aria-label="Fechar menu" />}
             <aside id="menu-principal" className={`sidebar ${menuAberto ? 'sidebar-open' : ''}`}>
               <div className="brand-lockup">
-                <span className="brand-mark"><HeartPulse className="lucide-icon" size={24} aria-hidden="true" /></span>
-                <span><strong>VetCare</strong><small>Gestão veterinária</small></span>
+                <span className="brand-mark brand-mark-logo"><img className="brand-logo" src="/agropet-logo.png" alt="" aria-hidden="true" /></span>
+                <span><strong>AgroPet</strong><small>Gestão veterinária</small></span>
               </div>
               <div className="sidebar-label">MENU PRINCIPAL</div>
               <nav className="sidebar-nav">

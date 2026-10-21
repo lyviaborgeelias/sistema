@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { Link, Navigate, useLocation, useNavigate } from 'react-router-dom'
-import { ArrowRight, HeartPulse, LockKeyhole, PawPrint, ShieldCheck, UserRound } from 'lucide-react'
+import { ArrowRight, LockKeyhole, PawPrint, ShieldCheck, UserRound } from 'lucide-react'
 import { mensagemErro } from '../../api'
 import './styles.css'
 
@@ -34,7 +34,7 @@ export default function Login({ usuario, entrar, sessaoExpirada }) {
   return (
     <div className="login-shell login-page">
       <section className="login-brand-panel">
-        <div className="login-brand"><span className="brand-mark brand-mark-light"><HeartPulse className="lucide-icon" size={24} aria-hidden="true" /></span><span><strong>VetCare</strong><small>Gestão veterinária</small></span></div>
+        <div className="login-brand"><span className="brand-mark brand-mark-light brand-mark-logo"><img className="brand-logo" src="/agropet-logo.png" alt="" aria-hidden="true" /></span><span><strong>AgroPet</strong><small>Gestão veterinária</small></span></div>
         <div className="login-message"><span className="eyebrow eyebrow-light">CUIDADO QUE ORGANIZA</span><h1>Mais tempo para cuidar.<br /><em>Mais clareza para gerir.</em></h1><p>Uma rotina mais simples para a equipe e mais acolhedora para cada família.</p><div className="login-paw"><PawPrint className="lucide-icon" size={27} aria-hidden="true" /></div></div>
         <div className="login-panel-footer">Gestão de clínica veterinária · SAEP 2026</div>
       </section>
